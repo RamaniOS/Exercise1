@@ -12,15 +12,15 @@ class ViewController: UIViewController {
    
     @IBOutlet weak var squareLabel: UILabel!
     
-    var topToBottomTimer: Timer?
-    let changePxPerSecond: CGFloat = 150
+    private var timer: Timer?
+    private let changePxPerSecond: CGFloat = 150
     
-    enum MoveType {
+    private enum MoveType {
         case topToBottom, bottomToTop, leftToRight, rightToLeft
     }
     
-    var moveType: MoveType = .topToBottom
-    var lastPosition: CGPoint?
+    private var moveType: MoveType = .topToBottom
+    private var lastPosition: CGPoint?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,7 +57,8 @@ class ViewController: UIViewController {
     }
     
     private func initTimer() {
-        topToBottomTimer = Timer.scheduledTimer(timeInterval: 0.9, target: self, selector: #selector(processTimer), userInfo: nil, repeats: true)
+        timer = nil
+        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(processTimer), userInfo: nil, repeats: true)
     }
     
     @objc private func processTimer() {
@@ -84,7 +85,7 @@ class ViewController: UIViewController {
                     self.squareLabel.frame.origin.y += screenMaxY - self.squareLabel.frame.maxY
                 }
             } else {
-                self.topToBottomTimer?.invalidate()
+                self.timer?.invalidate()
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
                     self.moveType = .leftToRight
                     self.initTimer()
@@ -104,7 +105,7 @@ class ViewController: UIViewController {
                     self.squareLabel.frame.origin.x += screenMaxX - self.squareLabel.frame.maxX
                 }
             } else {
-                self.topToBottomTimer?.invalidate()
+                self.timer?.invalidate()
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
                     self.moveType = .bottomToTop
                     self.initTimer()
@@ -118,13 +119,13 @@ class ViewController: UIViewController {
             guard let `self` = self else { return }
             let screenMinY = self.view.frame.minY + self.safeArea.top
             if self.squareLabel.frame.minY > screenMinY {
-                if self.squareLabel.frame.minY - screenMinY <= self.changePxPerSecond {
+                if self.squareLabel.frame.minY - screenMinY >= self.changePxPerSecond {
                     self.squareLabel.frame.origin.y -= self.changePxPerSecond
                 } else {
                     self.squareLabel.frame.origin.y -= self.squareLabel.frame.minY - screenMinY
                 }
             } else {
-                self.topToBottomTimer?.invalidate()
+                self.timer?.invalidate()
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
                     self.moveType = .rightToLeft
                     self.initTimer()
@@ -144,12 +145,16 @@ class ViewController: UIViewController {
                     self.squareLabel.frame.origin.x -= self.squareLabel.frame.minX - screenMinX
                 }
             } else {
-                self.topToBottomTimer?.invalidate()
+                self.timer?.invalidate()
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
+                    self.moveType = .topToBottom
+                    self.initTimer()
+                }
             }
         }
     }
     
-    var safeArea: (top: CGFloat, bottom: CGFloat) {
+    private var safeArea: (top: CGFloat, bottom: CGFloat) {
         if #available(iOS 11.0, *) {
             let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
             let topPadding = window?.safeAreaInsets.top
