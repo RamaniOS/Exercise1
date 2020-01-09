@@ -14,16 +14,15 @@ class ViewController: UIViewController {
     
     private var timer: Timer?
     private let changePxPerSecond: CGFloat = 150
-    
-    private enum MoveType {
-        case topToBottom, bottomToTop, leftToRight, rightToLeft
+    private enum MoveType { case topToBottom, bottomToTop, leftToRight, rightToLeft
     }
-    
     private var moveType: MoveType = .topToBottom
     private var lastPosition: CGPoint?
-    
+    private var isClockwise = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        lastPosition = squareLabel.frame.origin
         initViews()
     }
     
@@ -57,7 +56,6 @@ class ViewController: UIViewController {
     }
     
     private func initTimer() {
-        timer = nil
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(processTimer), userInfo: nil, repeats: true)
     }
     
@@ -87,7 +85,11 @@ class ViewController: UIViewController {
             } else {
                 self.timer?.invalidate()
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
-                    self.moveType = .leftToRight
+                    if self.isClockwise {
+                        self.moveType = .rightToLeft
+                    } else {
+                        self.moveType = .leftToRight
+                    }
                     self.initTimer()
                 }
             }
@@ -107,7 +109,11 @@ class ViewController: UIViewController {
             } else {
                 self.timer?.invalidate()
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
-                    self.moveType = .bottomToTop
+                    if self.isClockwise {
+                        self.moveType = .topToBottom
+                    } else {
+                        self.moveType = .bottomToTop
+                    }
                     self.initTimer()
                 }
             }
@@ -127,7 +133,11 @@ class ViewController: UIViewController {
             } else {
                 self.timer?.invalidate()
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
-                    self.moveType = .rightToLeft
+                    if self.isClockwise {
+                        self.moveType = .topToBottom
+                    } else {
+                       self.moveType = .rightToLeft
+                    }
                     self.initTimer()
                 }
             }
@@ -147,7 +157,11 @@ class ViewController: UIViewController {
             } else {
                 self.timer?.invalidate()
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
-                    self.moveType = .topToBottom
+                    if self.isClockwise {
+                        self.moveType = .bottomToTop
+                    } else {
+                        self.moveType = .topToBottom
+                    }
                     self.initTimer()
                 }
             }
@@ -162,6 +176,10 @@ class ViewController: UIViewController {
             return (topPadding ?? 0, bottomPadding ?? 0)
         }
         return (0, 0)
+    }
+    
+    private var oneCycleComplete: Bool {
+        return lastPosition == squareLabel.frame.origin
     }
 }
 
