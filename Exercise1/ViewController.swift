@@ -10,8 +10,9 @@ import UIKit
 
 class ViewController: UIViewController {
    
+    // IBOutlets
     @IBOutlet weak var squareLabel: UILabel!
-    
+    // Variables
     private var timer: Timer?
     private let changePxPerSecond: CGFloat = 150
     private enum MoveType { case topToBottom, bottomToTop, leftToRight, rightToLeft
@@ -20,7 +21,7 @@ class ViewController: UIViewController {
     private var lastPosition: CGPoint?
     private var isClockwise = false
     private var count = 1
-    
+    // Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         lastPosition = squareLabel.frame.origin
@@ -57,14 +58,11 @@ class ViewController: UIViewController {
     }
     
     private func initTimer() {
-        self.count += 1
+        count += 1
         if count == 5  {
             count = 0
             isClockwise = !isClockwise
         }
-        print("------")
-        print(isClockwise)
-        print("------")
         timer?.invalidate()
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(processTimer), userInfo: nil, repeats: true)
     }
@@ -186,10 +184,6 @@ class ViewController: UIViewController {
             return (topPadding ?? 0, bottomPadding ?? 0)
         }
         return (0, 0)
-    }
-    
-    private var oneCycleComplete: Bool {
-        return lastPosition == squareLabel.frame.origin
     }
 }
 
