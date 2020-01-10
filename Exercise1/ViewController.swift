@@ -19,7 +19,8 @@ class ViewController: UIViewController {
     private var moveType: MoveType = .topToBottom
     private var lastPosition: CGPoint?
     private var isClockwise = false
-
+    private var count = 1
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         lastPosition = squareLabel.frame.origin
@@ -44,18 +45,27 @@ class ViewController: UIViewController {
      
     @objc private func gestureRecognition(gesture: UISwipeGestureRecognizer) {
         if gesture.state == .ended {
+            count = 0
             switch gesture.direction {
             case .left:
-                moveType = .leftToRight
-                lastPosition = squareLabel.frame.origin
-                initTimer()
-            case .right: break
+                isClockwise = false
+            case .right:
+                isClockwise = true
             default: break
             }
         }
     }
     
     private func initTimer() {
+        self.count += 1
+        if count == 5  {
+            count = 0
+            isClockwise = !isClockwise
+        }
+        print("------")
+        print(isClockwise)
+        print("------")
+        timer?.invalidate()
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(processTimer), userInfo: nil, repeats: true)
     }
     
@@ -134,9 +144,9 @@ class ViewController: UIViewController {
                 self.timer?.invalidate()
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.8) {
                     if self.isClockwise {
-                        self.moveType = .topToBottom
+                        self.moveType = .leftToRight
                     } else {
-                       self.moveType = .rightToLeft
+                        self.moveType = .rightToLeft
                     }
                     self.initTimer()
                 }
@@ -150,7 +160,7 @@ class ViewController: UIViewController {
             let screenMinX = self.view.frame.minX
             if self.squareLabel.frame.minX > screenMinX {
                 if self.squareLabel.frame.minX - screenMinX >= self.changePxPerSecond {
-                    self.squareLabel.frame.origin.x -= self.changePxPerSecond
+                    self.squareLabel.center.x -= self.changePxPerSecond
                 } else {
                     self.squareLabel.frame.origin.x -= self.squareLabel.frame.minX - screenMinX
                 }
